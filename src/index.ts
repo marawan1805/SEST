@@ -20,9 +20,9 @@ export class SEST {
     );
   }
 
-  sendEvent(service: string, event: string, payload: any) {
-    this.eventSynchronizer.sendEvent(service, event, payload);
-  }
+  sendEvent(service: string, event: string, payload: any): Promise<void> {
+    return this.eventSynchronizer.sendEvent(service, event, payload);
+  }  
 
   getState(service: string): any {
     return this.eventSynchronizer.getState(service);

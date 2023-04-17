@@ -20,14 +20,17 @@ export class EventSynchronizer {
     this.eventMiddlewares = [];
   }
 
-  sendEvent(service: string, event: string, payload: any) {
+  sendEvent(service: string, event: string, payload: any): Promise<void> {
     const eventObj: Event = { service, event, payload };
-    this.processMiddlewares(eventObj, () => {
-      this.eventQueue.push(eventObj);
-      this.processEventQueue();
+    return new Promise<void>((resolve) => {
+      this.processMiddlewares(eventObj, () => {
+        this.eventQueue.push(eventObj);
+        this.processEventQueue();
+        resolve();
+      });
     });
   }
-
+  
   getState(service: string): any {
     return this.states[service];
   }

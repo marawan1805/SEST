@@ -50,4 +50,26 @@ describe("SEST", () => {
     }
     expect(sest.getState("serviceC")).not.toEqual(originalState);
   });
+
+  test("Parallel event processing", async () => {
+    await Promise.all([
+      sest.sendEvent("serviceA", "start", { input: "data" }),
+      sest.sendEvent("serviceB", "request", { request: "info" }),
+      sest.sendEvent("serviceC", "initialize", { config: "config data" }),
+    ]);
+  
+    expect(sest.getState("serviceA")).toEqual({
+      status: "processing",
+      data: { input: "data" },
+    });
+    expect(sest.getState("serviceB")).toEqual({
+      status: "waiting",
+      data: { request: "info" },
+    });
+    expect(sest.getState("serviceC")).toEqual({
+      status: "running",
+      data: { config: "config data" },
+    });
+  });
+  
 });
