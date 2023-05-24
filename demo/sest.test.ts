@@ -16,23 +16,37 @@ describe("SEST", () => {
 
   test("Basic event processing", () => {
     sest.sendEvent("serviceA", "start", { input: "data" });
-    expect(sest.getState("serviceA")).toEqual({ status: "processing", data: { input: "data" } });
+    expect(sest.getState("serviceA")).toEqual({
+      status: "processing",
+      data: { input: "data" },
+    });
 
     sest.sendEvent("serviceB", "request", { request: "info" });
-    expect(sest.getState("serviceB")).toEqual({ status: "waiting", data: { request: "info" } });
+    expect(sest.getState("serviceB")).toEqual({
+      status: "waiting",
+      data: { request: "info" },
+    });
 
     sest.sendEvent("serviceC", "initialize", { config: "config data" });
-    expect(sest.getState("serviceC")).toEqual({ status: "running", data: { config: "config data" } });
+    expect(sest.getState("serviceC")).toEqual({
+      status: "running",
+      data: { config: "config data" },
+    });
   });
 
   test("Fault injection", () => {
-    sest.faultInjector.inject("serviceA", "temporaryFailure", { duration: 2000 });
+    sest.faultInjector.inject("serviceA", "temporaryFailure", {
+      duration: 2000,
+    });
     sest.sendEvent("serviceA", "start", { input: "data" });
     expect(sest.getState("serviceA")).toEqual({ status: "idle", data: null });
 
     sest.advanceTime(2000);
     sest.sendEvent("serviceA", "start", { input: "data" });
-    expect(sest.getState("serviceA")).toEqual({ status: "processing", data: { input: "data" } });
+    expect(sest.getState("serviceA")).toEqual({
+      status: "processing",
+      data: { input: "data" },
+    });
 
     sest.reset();
     sest.faultInjector.inject("serviceB", "permanentFailure");
@@ -40,7 +54,9 @@ describe("SEST", () => {
     expect(sest.getState("serviceB")).toEqual({ status: "idle", data: null });
 
     sest.reset();
-    sest.faultInjector.inject("serviceC", "messageLoss", { lossPercentage: 50 });
+    sest.faultInjector.inject("serviceC", "messageLoss", {
+      lossPercentage: 50,
+    });
     const originalState = sest.getState("serviceC");
     for (let i = 0; i < 10; i++) {
       sest.sendEvent("serviceC", "initialize", { config: "config data" });
@@ -57,7 +73,7 @@ describe("SEST", () => {
       sest.sendEvent("serviceB", "request", { request: "info" }),
       sest.sendEvent("serviceC", "initialize", { config: "config data" }),
     ]);
-  
+
     expect(sest.getState("serviceA")).toEqual({
       status: "processing",
       data: { input: "data" },
@@ -71,5 +87,51 @@ describe("SEST", () => {
       data: { config: "config data" },
     });
   });
+
+  test("Priority-based event processing", async () => {
+    const sest = new SEST(
+      {
+        serviceA: ServiceAStateMachine,
+        serviceB: ServiceBStateMachine,
+        serviceC: ServiceCStateMachine,
+      },
+      1
+    );
   
+    await Promise.all([
+      sest.sendEvent("serviceA", "start", { input: "data" }, 2, 1000),
+      sest.sendEvent("serviceB", "request", { request: "info" }, 1, 2000),
+      sest.sendEvent("serviceC", "initialize", { config: "config data" }, 3, 3000),
+    ]);
+    
+      expect(sest.getState("serviceA")).toEqual({ status: "idle", data: null });
+      expect(sest.getState("serviceB")).toEqual({
+        status: "waiting",
+        data: { request: "info" },
+      });
+      expect(sest.getState("serviceC")).toEqual({ status: "idle", data: null });
+    
+      sest.advanceTime(1000);
+    
+      expect(sest.getState("serviceA")).toEqual({
+        status: "processing",
+        data: { input: "data" },
+      });
+      expect(sest.getState("serviceB")).toEqual({
+        status: "waiting",
+        data: { request: "info" },
+      });
+      expect(sest.getState("serviceC")).toEqual({ status: "idle", data: null });
+    
+      sest.advanceTime(1000);
+    
+      expect(sest.getState("serviceA")).toEqual({
+        status: "processing",
+        data: { input: "data" },
+      });
+      expect(sest.getState("serviceB")).toEqual({
+        status: "completed",
+        data: { request: "info" },
+      });
+    });
 });
