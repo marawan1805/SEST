@@ -27,7 +27,10 @@ export class VirtualClock {
   }
 
   private processTimeouts() {
-    while (this.timeouts.length > 0 && this.timeouts[0].time <= this.currentTime) {
+    while (
+      this.timeouts.length > 0 &&
+      this.timeouts[0].time <= this.currentTime
+    ) {
       const { callback } = this.timeouts.shift()!;
       callback();
     }

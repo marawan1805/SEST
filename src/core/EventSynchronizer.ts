@@ -55,18 +55,15 @@ export class EventSynchronizer {
     return new Promise<any>((resolve) => {
       this.processMiddlewares(eventObj, () => {
         this.eventQueue.enqueue(eventObj);
-        this.processEventQueue();
-        resolve(this.getState(service));
+        this.processEventQueue(resolve);
       });
     });
   }
-
   getState(service: string): any {
     return this.states[service];
   }
 
   reset() {
-    // Reset the state of each state machine
     for (const stateMachineName in this.stateMachines) {
       const stateMachine = this.stateMachines[stateMachineName];
       stateMachine.initialState = JSON.parse(
@@ -74,7 +71,6 @@ export class EventSynchronizer {
       );
     }
 
-    // Reset the states of the EventSynchronizer instance
     this.states = Object.keys(this.stateMachines).reduce((acc, serviceName) => {
       acc[serviceName] = this.stateMachines[serviceName].initialState;
       return acc;
@@ -85,13 +81,15 @@ export class EventSynchronizer {
     this.eventMiddlewares.push(middleware);
   }
 
-  private processEventQueue() {
-    // Add a new variable to track the number of events processed in this iteration
+  private processEventQueue(resolve: (value: any) => void) {
     let eventsProcessed = 0;
 
-    while (this.eventQueue.length() > 0 && eventsProcessed < this.maxEventsPerSecond) {
-      // Update this line to use dequeue instead of shift
-      const { service, event, payload, processingTime } = this.eventQueue.dequeue()!;
+    while (
+      this.eventQueue.length() > 0 &&
+      eventsProcessed < this.maxEventsPerSecond
+    ) {
+      const { service, event, payload, processingTime } =
+        this.eventQueue.dequeue()!;
       const stateMachine = this.stateMachines[service];
       const currentState = this.states[service];
 
@@ -100,10 +98,14 @@ export class EventSynchronizer {
       );
 
       if (transition) {
-        this.states[service] = transition.action(currentState, payload);
-
         if (processingTime !== null) {
-          this.virtualClock.advanceTime(processingTime);
+          this.virtualClock.setTimeout(() => {
+            this.states[service] = transition.action(currentState, payload);
+            resolve(this.getState(service));
+          }, processingTime);
+        } else {
+          this.states[service] = transition.action(currentState, payload);
+          resolve(this.getState(service));
         }
 
         eventsProcessed++;

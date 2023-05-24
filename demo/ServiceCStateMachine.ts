@@ -7,13 +7,21 @@ export const ServiceCStateMachine: StateMachine = {
       event: "initialize",
       from: "idle",
       to: "running",
-      action: (state, payload) => ({ ...state, status: "running", data: payload }),
+      action: (state, payload) => ({
+        ...state,
+        status: "running",
+        data: payload,
+      }),
     },
     {
       event: "terminate",
       from: "running",
       to: "terminated",
-      action: (state, payload) => ({ ...state, status: "terminated", data: payload }),
+      action: (state, payload) => ({
+        ...state,
+        status: "terminated",
+        data: payload,
+      }),
     },
   ],
 };

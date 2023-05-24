@@ -7,13 +7,21 @@ export const ServiceAStateMachine: StateMachine = {
       event: "start",
       from: "idle",
       to: "processing",
-      action: (state, payload) => ({ ...state, status: "processing", data: payload }),
+      action: (state, payload) => ({
+        ...state,
+        status: "processing",
+        data: payload,
+      }),
     },
     {
       event: "finish",
       from: "processing",
       to: "completed",
-      action: (state, payload) => ({ ...state, status: "completed", data: payload }),
+      action: (state, payload) => ({
+        ...state,
+        status: "completed",
+        data: payload,
+      }),
     },
   ],
 };

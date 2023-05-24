@@ -40,28 +40,37 @@ export class FaultInjector {
   }
 
   private injectTemporaryFailure(service: string, duration: number) {
-    this.eventSynchronizer.registerMiddleware((event: Event, next: () => void) => {
-      if (event.service === service && this.virtualClock.getTime() < duration) {
-        return;
+    this.eventSynchronizer.registerMiddleware(
+      (event: Event, next: () => void) => {
+        if (
+          event.service === service &&
+          this.virtualClock.getTime() < duration
+        ) {
+          return;
+        }
+        next();
       }
-      next();
-    });
+    );
   }
 
   private injectPermanentFailure(service: string) {
-    this.eventSynchronizer.registerMiddleware((event: Event, next: () => void) => {
-      if (event.service !== service) {
-        next();
+    this.eventSynchronizer.registerMiddleware(
+      (event: Event, next: () => void) => {
+        if (event.service !== service) {
+          next();
+        }
       }
-    });
+    );
   }
 
   private injectMessageLoss(service: string, lossPercentage: number) {
-    this.eventSynchronizer.registerMiddleware((event: Event, next: () => void) => {
-      if (event.service === service && Math.random() < lossPercentage / 100) {
-        return;
+    this.eventSynchronizer.registerMiddleware(
+      (event: Event, next: () => void) => {
+        if (event.service === service && Math.random() < lossPercentage / 100) {
+          return;
+        }
+        next();
       }
-      next();
-    });
+    );
   }
 }

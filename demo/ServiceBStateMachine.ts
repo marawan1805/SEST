@@ -7,13 +7,21 @@ export const ServiceBStateMachine: StateMachine = {
       event: "request",
       from: "idle",
       to: "waiting",
-      action: (state, payload) => ({ ...state, status: "waiting", data: payload }),
+      action: (state, payload) => ({
+        ...state,
+        status: "waiting",
+        data: payload,
+      }),
     },
     {
       event: "response",
       from: "waiting",
       to: "completed",
-      action: (state, payload) => ({ ...state, status: "completed", data: payload }),
+      action: (state, payload) => ({
+        ...state,
+        status: "completed",
+        data: payload,
+      }),
     },
   ],
 };

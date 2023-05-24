@@ -15,7 +15,11 @@ export class SEST {
     maxEventsPerSecond: number = Infinity
   ) {
     this.virtualClock = new VirtualClock();
-    this.eventSynchronizer = new EventSynchronizer(stateMachines, this.virtualClock, maxEventsPerSecond);
+    this.eventSynchronizer = new EventSynchronizer(
+      stateMachines,
+      this.virtualClock,
+      maxEventsPerSecond
+    );
     this.faultInjector = new FaultInjector(
       this.eventSynchronizer,
       this.virtualClock
@@ -29,7 +33,13 @@ export class SEST {
     priority: number = 1,
     processingTime: number | null = null
   ): Promise<any> {
-    return this.eventSynchronizer.sendEvent(service, event, payload, priority, processingTime);
+    return this.eventSynchronizer.sendEvent(
+      service,
+      event,
+      payload,
+      priority,
+      processingTime
+    );
   }
 
   getState(service: string): any {
@@ -45,4 +55,3 @@ export class SEST {
     this.virtualClock.reset();
   }
 }
-
