@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="https://github.com/marawan1805/SEST/assets/95961680/7d282c33-2a86-42b4-ba4e-c2185ed3c8d5" width="500" alt="SEST (3)" />
+  <img src="https://github.com/marawan1805/SEST/assets/95961680/f405692b-e9b7-4264-8d5a-5d0eb70485db" width="500" alt="SEST (3)" />
 </div>
 
 # SEST (Stateful Event Synchronization Testing)
