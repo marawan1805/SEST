@@ -1,4 +1,6 @@
-![removal ai _a883391b-1088-4b05-b65d-7a74b66c3da6-sest-3](https://github.com/marawan1805/SEST/assets/95961680/3ba983b1-5950-4cc5-b7d6-67d442e21d2b)
+<div align="center">
+  <img src="https://github.com/marawan1805/SEST/assets/95961680/7d282c33-2a86-42b4-ba4e-c2185ed3c8d5" width="500" alt="SEST (3)" />
+</div>
 
 # SEST (Stateful Event Synchronization Testing)
 
